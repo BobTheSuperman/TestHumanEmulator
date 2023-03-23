@@ -12,18 +12,20 @@ namespace XHE
             MyKeyboard = new MyKeyboardImplementation(server, password, new XHEScript());
         }
 
-        public void ProcessBet()
+        //ToDo: replace the params to UserBetJobDto for our main app
+        public void ProcessBet(string login, string password, double betAmount, string betUrl)
         { 
-            Login();
-
-            if(CheckBalance())
+            if(Login(login, password))
             {
-                PlaceBet();
+                if (CheckBalance(betAmount))
+                {
+                    PlaceBet(betUrl);
+                }
             }
         }
 
-        protected abstract bool Login();
-        protected abstract bool CheckBalance();
-        protected abstract void PlaceBet();
+        protected abstract bool Login(string login, string password);
+        protected abstract bool CheckBalance(double betAmaumt);
+        protected abstract bool PlaceBet(string betUrl);
     }
 }
