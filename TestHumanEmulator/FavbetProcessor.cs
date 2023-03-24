@@ -16,8 +16,7 @@ namespace XHE
             if(!browser.navigate(LoginPage))
                 return false;
 
-            browser.wait();
-
+            Thread.Sleep(1000);
 
             if (anchor.is_exist_by_id("f8ccacf7-55fa-400b-bd21-728b147cd840"))
                 return true;

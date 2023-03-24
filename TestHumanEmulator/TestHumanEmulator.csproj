@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <Reference Include="XHE">
-      <HintPath>..\..\..\..\Program\Human Emulator Studio 7.0.69\XHE.dll</HintPath>
+      <HintPath>bin\Debug\net6.0\XHE.dll</HintPath>
     </Reference>
   </ItemGroup>
 
