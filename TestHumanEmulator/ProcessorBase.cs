@@ -15,6 +15,8 @@ namespace XHE
         //ToDo: replace the params to UserBetJobDto for our main app
         public void ProcessBet(string login, string password, double betAmount, string betUrl)
         { 
+            //ClearBrowser();
+
             if(Login(login, password))
             {
                 if (CheckBalance(betAmount))
@@ -27,5 +29,15 @@ namespace XHE
         protected abstract bool Login(string login, string password);
         protected abstract bool CheckBalance(double betAmaumt);
         protected abstract bool PlaceBet(string betUrl);
+
+        private bool ClearBrowser()
+        {
+            browser.clear_address_bar_history();
+            browser.clear_cache();
+            browser.clear_history();
+            browser.clear_cookies("");
+
+            return true;
+        }
     }
 }

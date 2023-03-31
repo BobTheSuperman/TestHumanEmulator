@@ -10,6 +10,7 @@
   <ItemGroup>
     <Reference Include="XHE">
       <HintPath>bin\Debug\net6.0\XHE.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
 

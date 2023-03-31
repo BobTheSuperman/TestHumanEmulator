@@ -4,7 +4,7 @@ namespace XHE
 {
     public class FavbetProcessor : ProcessorBase
     {
-        private const string LoginPage = "https://www.favbet.ua/uk/login/?from=header-desktop";
+        private const string MainPage = "https://www.favbet.ua/";
 
         public FavbetProcessor(string server, string password = "") : base(server, password)
         {
@@ -13,21 +13,28 @@ namespace XHE
 
         protected override bool Login(string login, string password)
         {
-            if(!browser.navigate(LoginPage))
-                return false;
+            browser.navigate(MainPage);
 
-            Thread.Sleep(1000);
+            browser.wait_for(15, 3);
 
             if (anchor.is_exist_by_id("f8ccacf7-55fa-400b-bd21-728b147cd840"))
+            {
                 return true;
+            }
+            else
+            {
+                anchor.click_by_href("login/?from=header-desktop", 0);
 
-            Console.WriteLine($"click email: {input.get_by_id("email").meta_click()}");
+                browser.wait_for(15, 3);
 
-            Console.WriteLine($"input email text: {MyKeyboard.Input(login)}");
+                Console.WriteLine($"click email: {input.get_by_id("email").meta_click()}");
 
-            Console.WriteLine($"click password: {input.get_by_id("password").meta_click()}");
+                Console.WriteLine($"input email text: {MyKeyboard.Input(login)}");
 
-            Console.WriteLine($"input password text: {MyKeyboard.Input(password)}");
+                Console.WriteLine($"click password: {input.get_by_id("password").meta_click()}");
+
+                Console.WriteLine($"input password text: {MyKeyboard.Input(password)}");
+            }
 
             return btn.click_by_inner_html("<span class=\"Box_box__3oOkB Bu", 0);
         }
@@ -44,8 +51,12 @@ namespace XHE
 
         protected override bool PlaceBet(string betUrl)
         {
-            if(!browser.navigate(betUrl))
+            if (!browser.navigate(betUrl))
                 return false;
+
+            browser.wait_for(15, 3);
+
+            span.click_by_attribute("class", "OutcomeButton_coef__290P9", 0);
 
             return true;
         }
