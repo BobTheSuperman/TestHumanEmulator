@@ -4,7 +4,16 @@ namespace XHE
 {
     public abstract class ProcessorBase : XHEScript
     {
+        #region XHEConstant
+        protected const string ClassAttribute = "class";
+        protected const string IdAttribute = "id";
+        protected const string NameAttribute = "name";
+        protected const int NotExect = 0;
+        protected const int Exect = 1;
+        #endregion
+
         protected MyKeyboardImplementation MyKeyboard;
+
         public ProcessorBase(string server, string password = "") : base(server, password)
         {
             server = "127.0.0.1:7011";
@@ -15,7 +24,7 @@ namespace XHE
         //ToDo: replace the params to UserBetJobDto for our main app
         public void ProcessBet(string login, string password, double betAmount, string betUrl)
         {
-            SetBrowserSettings();
+            //SetBrowserSettings();
 
             if (Login(login, password))
             {

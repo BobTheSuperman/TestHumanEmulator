@@ -4,7 +4,18 @@ namespace XHE
 {
     public class FavbetProcessor : ProcessorBase
     {
+        #region XHEFavbetConstants
         private const string MainPage = "https://www.favbet.ua/";
+        private const string XHENumberSeparator = "<@@@b@r@@@>";
+        private const string DepositHrefId = "f8ccacf7-55fa-400b-bd21-728b147cd840";
+        private const string LoginHref = "login/?from=header-desktop";
+        private const string LoginInnerHtml = "<span class=\"Box_box__3oOkB Bu";
+        private const string BalanceOuterHtml = "<span class=\"Text_base__3OOOi";
+        private const string CurrencyOuterHtml = "<span class=\"Text_base__3OOOi";
+        private const string FullTimeFirstTeamWinClass = "OutcomeButton_coef__290P9";
+        private const string PlaceBetInputClass = "Input_input__FzRkn BetSumInput_input__3xT0O BetSumInput_withoutValue__3p5OP";
+        private const string PlaceBetButtonClass = "Button_button__WYSdr Button_primary__1OqiW Button_l__3KQSE Button_color1__3fuRd Button_disabled__2w937 Button_fullWidth__1vToY";
+        #endregion
 
         public FavbetProcessor(string server, string password = "") : base(server, password)
         {
@@ -17,13 +28,13 @@ namespace XHE
 
             browser.wait_for(15, 3);
 
-            if (anchor.is_exist_by_id("f8ccacf7-55fa-400b-bd21-728b147cd840"))
+            if (anchor.is_exist_by_id(DepositHrefId))
             {
                 return true;
             }
             else
             {
-                anchor.click_by_href("login/?from=header-desktop", 0);
+                anchor.click_by_href(LoginHref, NotExect);
 
                 browser.wait_for(15, 3);
 
@@ -36,13 +47,14 @@ namespace XHE
                 Console.WriteLine($"input password text: {MyKeyboard.Input(password)}");
             }
 
-            return btn.click_by_inner_html("<span class=\"Box_box__3oOkB Bu", 0);
+            return btn.click_by_inner_html(LoginInnerHtml, NotExect);
         }
 
         protected override bool CheckBalance(double betAmount)
         {
-            var balanceString = span.get_by_outer_html("<span class=\"Text_base__3OOOi ", 0).get_inner_text().Split()[0];
-            //var currencyString = span.get_by_outer_html("<span class=\"Text_base__3OOOi ", 0).get_inner_text().Split()[1];
+            var balanceString = span.get_by_outer_html(BalanceOuterHtml, NotExect).get_inner_text().Split()[0];
+
+            //var currencyString = span.get_by_outer_html(CurrencyOuterHtml, NotExect).get_inner_text().Split()[1];
 
             double balance = double.Parse(balanceString, System.Globalization.CultureInfo.InvariantCulture);
 
@@ -52,15 +64,17 @@ namespace XHE
         protected override bool PlaceBet(string betUrl, double betAmount)
         {
             if (!browser.navigate(betUrl))
+            {
                 return false;
+            }
 
-            span.wait_element_exist_by_attribute("class", "OutcomeButton_coef__290P9", 0);
+            span.wait_element_exist_by_attribute(FullTimeFirstTeamWinClass, FullTimeFirstTeamWinClass, NotExect);
             browser.wait_for();
             Thread.Sleep(2000);
 
-            Console.WriteLine("betClick: " + span.get_by_attribute("class", "OutcomeButton_coef__290P9", 0).meta_click());
+            Console.WriteLine("betClick: " + span.get_by_attribute(ClassAttribute, FullTimeFirstTeamWinClass, NotExect).meta_click());
 
-            input.get_by_attribute("class", "Input_input__FzRkn BetSumInput_input__3xT0O BetSumInput_withoutValue__3p5OP").meta_click();
+            input.get_by_attribute(FullTimeFirstTeamWinClass, PlaceBetInputClass).meta_click();
 
             MyKeyboard.Input($"{betAmount}");
 
@@ -69,7 +83,7 @@ namespace XHE
                 return false;
             }
 
-            button.click_by_attribute("class", "Button_button__WYSdr Button_primary__1OqiW Button_l__3KQSE Button_color1__3fuRd Button_disabled__2w937 Button_fullWidth__1vToY", 0);
+            button.click_by_attribute(FullTimeFirstTeamWinClass, PlaceBetButtonClass, NotExect);
 
             return true;
         }
@@ -77,25 +91,22 @@ namespace XHE
         private bool IsErrorsExist()
         {
             bool result = false;
+            List<string> errors = new List<string>();
 
-            var errorDivs = div.get_by_attribute("class", "error", 0);
+            var errorNumbers = div.get_all_numbers_by_attribute(FullTimeFirstTeamWinClass, "error", 0);
 
-            string errorSeparator = "<@@@b@r@@@>";
-
-            var errorNumbers = div.get_all_numbers_by_attribute("class", "error", 0);
-
-            if (errorNumbers.Length > 0)
+            if (errorNumbers?.Length > 0)
             {
                 result = true;
 
-                errorNumbers = errorNumbers[0].Split(errorSeparator);
-            }
+                errorNumbers = errorNumbers[0].Split(XHENumberSeparator);
 
-            foreach (var number in errorNumbers)
-            {
-                var error = div.get_inner_text_by_number(Int32.Parse(number));
+                foreach (var number in errorNumbers)
+                {
+                    var error = div.get_inner_text_by_number(Int32.Parse(number));
 
-                echo(error);
+                    errors.Add(error);
+                }
             }
 
             return result;

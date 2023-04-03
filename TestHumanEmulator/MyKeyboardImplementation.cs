@@ -46,6 +46,7 @@ namespace TestHumanEmulator
                 }
             };
             bool result = call_boolean("input", aParams);
+            Thread.Sleep(1000);
 
             return result;
         }
