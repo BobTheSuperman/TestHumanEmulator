@@ -1,4 +1,5 @@
-﻿using TestHumanEmulator;
+﻿using System.Globalization;
+using TestHumanEmulator;
 
 namespace XHE
 {
@@ -34,7 +35,7 @@ namespace XHE
             }
             else
             {
-                anchor.click_by_href(LoginHref, NotExect);
+                anchor.click_by_href(LoginHref, NotExact);
 
                 browser.wait_for(15, 3);
 
@@ -47,12 +48,12 @@ namespace XHE
                 Console.WriteLine($"input password text: {MyKeyboard.Input(password)}");
             }
 
-            return btn.click_by_inner_html(LoginInnerHtml, NotExect);
+            return btn.click_by_inner_html(LoginInnerHtml, NotExact);
         }
 
         protected override bool CheckBalance(double betAmount)
         {
-            var balanceString = span.get_by_outer_html(BalanceOuterHtml, NotExect).get_inner_text().Split()[0];
+            var balanceString = span.get_by_outer_html(BalanceOuterHtml, NotExact).get_inner_text().Split()[0];
 
             //var currencyString = span.get_by_outer_html(CurrencyOuterHtml, NotExect).get_inner_text().Split()[1];
 
@@ -61,29 +62,41 @@ namespace XHE
             return balance >= betAmount;
         }
 
-        protected override bool PlaceBet(string betUrl, double betAmount)
+        protected override bool PlaceBet(string betUrl, double betAmount, double koef)
         {
             if (!browser.navigate(betUrl))
             {
                 return false;
             }
 
-            span.wait_element_exist_by_attribute(FullTimeFirstTeamWinClass, FullTimeFirstTeamWinClass, NotExect);
+            span.wait_element_exist_by_attribute(ClassAttribute, FullTimeFirstTeamWinClass, NotExact);
             browser.wait_for();
             Thread.Sleep(2000);
 
-            Console.WriteLine("betClick: " + span.get_by_attribute(ClassAttribute, FullTimeFirstTeamWinClass, NotExect).meta_click());
+            var betSpan = span.get_by_attribute(ClassAttribute, FullTimeFirstTeamWinClass, NotExact);
+            double koefValue;
 
-            input.get_by_attribute(FullTimeFirstTeamWinClass, PlaceBetInputClass).meta_click();
+            if (Double.TryParse(betSpan.get_inner_text(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out koefValue) && koefValue == koef)
+            {
+                Console.WriteLine("betClick: " + betSpan.meta_click());
 
-            MyKeyboard.Input($"{betAmount}");
+                input.get_by_attribute(ClassAttribute, PlaceBetInputClass).meta_click();
 
-            if(IsErrorsExist())
+                MyKeyboard.DeleteAllTextFromInput();
+
+                MyKeyboard.Input($"{betAmount}");
+
+                if (IsErrorsExist())
+                {
+                    return false;
+                }
+
+                button.click_by_attribute(ClassAttribute, PlaceBetButtonClass, NotExact);
+            }
+            else
             {
                 return false;
             }
-
-            button.click_by_attribute(FullTimeFirstTeamWinClass, PlaceBetButtonClass, NotExect);
 
             return true;
         }
@@ -93,7 +106,7 @@ namespace XHE
             bool result = false;
             List<string> errors = new List<string>();
 
-            var errorNumbers = div.get_all_numbers_by_attribute(FullTimeFirstTeamWinClass, "error", 0);
+            var errorNumbers = div.get_all_numbers_by_attribute(ClassAttribute, "error", 0);
 
             if (errorNumbers?.Length > 0)
             {
@@ -104,6 +117,8 @@ namespace XHE
                 foreach (var number in errorNumbers)
                 {
                     var error = div.get_inner_text_by_number(Int32.Parse(number));
+
+                    Console.WriteLine(error);
 
                     errors.Add(error);
                 }

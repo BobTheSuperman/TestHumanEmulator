@@ -8,7 +8,7 @@ namespace XHE
         protected const string ClassAttribute = "class";
         protected const string IdAttribute = "id";
         protected const string NameAttribute = "name";
-        protected const int NotExect = 0;
+        protected const int NotExact = 0;
         protected const int Exect = 1;
         #endregion
 
@@ -22,24 +22,24 @@ namespace XHE
         }
 
         //ToDo: replace the params to UserBetJobDto for our main app
-        public void ProcessBet(string login, string password, double betAmount, string betUrl)
-        {
+        public void ProcessBet(string login, string password, double betAmount, string betUrl, double koef)
+        {      
             //SetBrowserSettings();
 
             if (Login(login, password))
             {
                 if (CheckBalance(betAmount))
                 {
-                    PlaceBet(betUrl, betAmount);
+                    PlaceBet(betUrl, betAmount, koef);
                 }
             }
         }
 
         protected abstract bool Login(string login, string password);
         protected abstract bool CheckBalance(double betAmaunt);
-        protected abstract bool PlaceBet(string betUrl, double betAmaunt);
+        protected abstract bool PlaceBet(string betUrl, double betAmaunt, double koef);
 
-        private bool SetBrowserSettings()
+        public bool SetBrowserSettings()
         {
             browser.clear_address_bar_history();
             browser.clear_cache();

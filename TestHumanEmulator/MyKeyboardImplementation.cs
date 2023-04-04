@@ -50,5 +50,14 @@ namespace TestHumanEmulator
 
             return result;
         }
+
+        /// <summary>
+        /// Ctrl+A+Delete
+        /// </summary>
+        public void DeleteAllTextFromInput()
+        {
+            send_key("65", false, true);
+            send_key("46", false, false);
+        }
     }
 }
