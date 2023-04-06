@@ -74,9 +74,8 @@ namespace XHE
             Thread.Sleep(2000);
 
             var betSpan = span.get_by_attribute(ClassAttribute, FullTimeFirstTeamWinClass, NotExact);
-            double koefValue;
 
-            if (Double.TryParse(betSpan.get_inner_text(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out koefValue) && koefValue == koef)
+            if (CheckKoef(betSpan.get_inner_text(), koef))
             {
                 Console.WriteLine("betClick: " + betSpan.meta_click());
 
@@ -95,6 +94,8 @@ namespace XHE
             }
             else
             {
+                Console.WriteLine("Koefs don't match");
+
                 return false;
             }
 
@@ -125,6 +126,13 @@ namespace XHE
             }
 
             return result;
+        }
+
+        private bool CheckKoef(string spanKoefString, double koef)
+        {
+            double spanKoefValue;
+
+            return Double.TryParse(spanKoefString, NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out spanKoefValue) && spanKoefValue == koef;
         }
     }
 }
