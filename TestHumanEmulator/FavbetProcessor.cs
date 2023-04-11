@@ -69,6 +69,65 @@ namespace XHE
                 return false;
             }
 
+            browser.wait_for();
+            Thread.Sleep(2000);
+            var divs = div.get_all_by_inner_html("<div class=\"Box_box__3oOkB OutcomeButton_outcome__S21im OutcomeButton_table__2FxD6 OutcomeButton_desktopStyles__2SqAq Box_justify_between__YVIct Box_align_center__1nUqG\"", NotExact);
+            divs.meta_click();
+
+            var divsByBetType = div.get_all_by_inner_text("Handicap", Exect).get_next();
+
+            //var scnd = div.get_all_by_number($"{divsByBetType.get_number()}").get_all_by_inner_text("2nd", NotExact).get_next()[0];
+            var secondHaldDiv = divsByBetType[0].get_all_child_by_inner_text("2nd Half", NotExact, true).get_number().Count;
+
+            if (secondHaldDiv > 0)
+            {
+                //var test1 = divsByBetType.get_all_child_by_inner_text("2.5", NotExact, true).get_number();
+                //var test2 = divsByBetType.get_all_child_by_inner_text("1.16", NotExact, true).get_number();
+                //var test1last = test1.Last();
+                //var test2last = test2.Last();
+
+                //if (test1last == test2last + 1 || test1last == test2last - 1)
+                //{
+                //    var test3 = 
+                //    test3.meta_click();
+                //}
+
+                var betDivs = divsByBetType[0].get_child_by_inner_html("<div class=\"Box_box__3oOkB OutcomeButton_outcome__S21im OutcomeButton_table__2FxD6 OutcomeButton_desktopStyles__2SqAq Box_justify_between__YVIct Box_align_center__1nUqG\" style=\"padding: 0px 8px;\"", 0, true);
+
+                betDivs.meta_click();
+            }
+            //secondHaldDiv.set_attribute("value", "1231232");
+
+
+            //var divsByPeriod = div.get_all_by_number($"{divsByBetType[0].get_number()}").get_all_by_inner_text("2nd", NotExact).get_next();
+
+            //var divsByBetParam1 = divsByPeriod[0].get_child_by_inner_text("2.5", NotExact);
+            //var divsByBetParam2 = divsByPeriod[0].get_child_by_inner_text("1.16", NotExact);
+
+            //divsByBetParam2.meta_click();
+
+            //if (divsByBetParam1 == divsByBetParam2)
+            //{
+            //    divsByBetParam2.meta_click();
+            //}
+
+            //var divsByBetParam = div.get_all_by_number($"{divsByPeriod[0].get_number()}").get_all_by_inner_text("2.5", NotExact);
+
+            //divsByBetParam.click();
+            //divsByBetParam.meta_click();
+
+            //divsByBetParam.meta_click();
+
+            //var targetDiv = divsByBetParam.get_all_by_inner_text("1.29", Exect);
+            //Period
+            //var divsByPeriod = divsByBetType[0].get_all_by_inner_text("2nd", NotExact);
+
+            //BetParam
+            //var divsByBetParam = divsByPeriod.get_all_by_inner_text("3.5", NotExact);
+
+
+
+
             span.wait_element_exist_by_attribute(ClassAttribute, FullTimeFirstTeamWinClass, NotExact);
             browser.wait_for();
             Thread.Sleep(2000);
