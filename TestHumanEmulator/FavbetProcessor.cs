@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using TestHumanEmulator;
+using XHE.XHE_DOM;
 
 namespace XHE
 {
@@ -71,62 +72,56 @@ namespace XHE
 
             browser.wait_for();
             Thread.Sleep(2000);
-            var divs = div.get_all_by_inner_html("<div class=\"Box_box__3oOkB OutcomeButton_outcome__S21im OutcomeButton_table__2FxD6 OutcomeButton_desktopStyles__2SqAq Box_justify_between__YVIct Box_align_center__1nUqG\"", NotExact);
-            divs.meta_click();
 
             var divsByBetType = div.get_all_by_inner_text("Handicap", Exect).get_next();
 
-            //var scnd = div.get_all_by_number($"{divsByBetType.get_number()}").get_all_by_inner_text("2nd", NotExact).get_next()[0];
-            var secondHaldDiv = divsByBetType[0].get_all_child_by_inner_text("2nd Half", NotExact, true).get_number().Count;
+            var periodUpperDiv = divsByBetType[0].get_all_child_by_inner_text("Full Time", NotExact, true);
+            var periodDiv = GetLowestDivWithValue(periodUpperDiv, "Full Time").get_parent()[0].get_next();
 
-            if (secondHaldDiv > 0)
+            if (periodUpperDiv.get_number().Count > 0)
             {
-                //var test1 = divsByBetType.get_all_child_by_inner_text("2.5", NotExact, true).get_number();
-                //var test2 = divsByBetType.get_all_child_by_inner_text("1.16", NotExact, true).get_number();
-                //var test1last = test1.Last();
-                //var test2last = test2.Last();
+                //var betDivsWithNecessaryParam = periodDiv.get_all_child_by_inner_text("+1.0", NotExact, true);
 
-                //if (test1last == test2last + 1 || test1last == test2last - 1)
+                //var targetElement = GetLowestDivWithValue(betDivsWithNecessaryParam, koef.ToString("0.00", CultureInfo.GetCultureInfo("en-US")));
+                ////var targetElement = GetLowestDivWithValue(betDivsWithNecessaryParam, "1.77").get_parent()[0].get_parent();
+                //var text = targetElement.get_inner_text();
+
+                //if (targetElement != null)
                 //{
-                //    var test3 = 
-                //    test3.meta_click();
-                //}
+                //    targetElement.meta_click();
+                //}\
 
-                var betDivs = divsByBetType[0].get_child_by_inner_html("<div class=\"Box_box__3oOkB OutcomeButton_outcome__S21im OutcomeButton_table__2FxD6 OutcomeButton_desktopStyles__2SqAq Box_justify_between__YVIct Box_align_center__1nUqG\" style=\"padding: 0px 8px;\"", 0, true);
+                var upperDivWithNecessaryKoef = periodDiv.get_all_child_by_inner_text(koef.ToString("0.00", CultureInfo.GetCultureInfo("en-US")), NotExact, true);
 
-                betDivs.meta_click();
+                var divWithNecessaryKoef = GetLowestDivWithValue(upperDivWithNecessaryKoef, koef.ToString("0.00", CultureInfo.GetCultureInfo("en-US")));
+
+                div.get_by_attribute("data - role", "betslip-event-button-delete")?.meta_click();
+
+                Thread.Sleep(2000);
+
+                divWithNecessaryKoef.meta_click();
+
+                Thread.Sleep(2000);
+
+                input.get_by_attribute(ClassAttribute, PlaceBetInputClass).meta_click();
+
+                MyKeyboard.DeleteAllTextFromInput();
+
+                MyKeyboard.Input($"{betAmount}");
+
+                if (IsErrorsExist())
+                {
+                    return false;
+                }
+
+                button.click_by_attribute(ClassAttribute, PlaceBetButtonClass, NotExact);
             }
-            //secondHaldDiv.set_attribute("value", "1231232");
+            else
+            {
+                Console.WriteLine($"Bet: Handicap\nParam: 2nd\nKoef{koef} \nNot Found");
 
-
-            //var divsByPeriod = div.get_all_by_number($"{divsByBetType[0].get_number()}").get_all_by_inner_text("2nd", NotExact).get_next();
-
-            //var divsByBetParam1 = divsByPeriod[0].get_child_by_inner_text("2.5", NotExact);
-            //var divsByBetParam2 = divsByPeriod[0].get_child_by_inner_text("1.16", NotExact);
-
-            //divsByBetParam2.meta_click();
-
-            //if (divsByBetParam1 == divsByBetParam2)
-            //{
-            //    divsByBetParam2.meta_click();
-            //}
-
-            //var divsByBetParam = div.get_all_by_number($"{divsByPeriod[0].get_number()}").get_all_by_inner_text("2.5", NotExact);
-
-            //divsByBetParam.click();
-            //divsByBetParam.meta_click();
-
-            //divsByBetParam.meta_click();
-
-            //var targetDiv = divsByBetParam.get_all_by_inner_text("1.29", Exect);
-            //Period
-            //var divsByPeriod = divsByBetType[0].get_all_by_inner_text("2nd", NotExact);
-
-            //BetParam
-            //var divsByBetParam = divsByPeriod.get_all_by_inner_text("3.5", NotExact);
-
-
-
+                return false;
+            }
 
             span.wait_element_exist_by_attribute(ClassAttribute, FullTimeFirstTeamWinClass, NotExact);
             browser.wait_for();
@@ -192,6 +187,24 @@ namespace XHE
             double spanKoefValue;
 
             return Double.TryParse(spanKoefString, NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out spanKoefValue) && spanKoefValue == koef;
+        }
+
+        private XHEInterfaces GetLowestDivWithValue(XHEInterfaces? betDivs, string innerText)
+        {
+            var result = betDivs.get_all_child_by_inner_text(innerText, NotExact, true);
+
+            if (result.Count == 0)
+            {
+                Console.WriteLine("Not found");
+
+                return null;
+            }
+            else if (result.Count == 2)
+            {
+                return result[0];
+            }
+
+            return GetLowestDivWithValue(result[0], innerText);
         }
     }
 }

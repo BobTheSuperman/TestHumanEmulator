@@ -24,7 +24,7 @@ namespace XHE
         //ToDo: replace the params to UserBetJobDto for our main app
         public void ProcessBet(string login, string password, double betAmount, string betUrl, double koef)
         {      
-            //SetBrowserSettings();
+            SetBrowserSettings();
 
             if (Login(login, password))
             {
