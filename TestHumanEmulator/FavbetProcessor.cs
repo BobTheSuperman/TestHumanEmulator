@@ -56,7 +56,7 @@ namespace XHE
         {
             var balanceString = span.get_by_outer_html(BalanceOuterHtml, NotExact).get_inner_text().Split()[0];
 
-            //var currencyString = span.get_by_outer_html(CurrencyOuterHtml, NotExect).get_inner_text().Split()[1];
+            //var currency = span.get_by_outer_html(CurrencyOuterHtml, NotExect).get_inner_text().Split()[1];
 
             double balance = double.Parse(balanceString, System.Globalization.CultureInfo.InvariantCulture);
 
@@ -73,37 +73,25 @@ namespace XHE
             browser.wait_for();
             Thread.Sleep(2000);
 
-            var divsByBetType = div.get_all_by_inner_text("Handicap", Exect).get_next();
+            var divsByBetType = div.get_all_by_inner_text("Handicap", Exact).get_next();
 
-            var periodUpperDiv = divsByBetType[0].get_all_child_by_inner_text("Full Time", NotExact, true);
-            var periodDiv = GetLowestDivWithValue(periodUpperDiv, "Full Time").get_parent()[0].get_next();
+            var periodUpperDiv = divsByBetType[0].get_all_child_by_inner_text("2nd Half", NotExact, true);
+            var periodDiv = GetLowestDivWithValue(periodUpperDiv, "2nd Half")?.get_parent()[0].get_next();
 
             if (periodUpperDiv.get_number().Count > 0)
             {
-                //var betDivsWithNecessaryParam = periodDiv.get_all_child_by_inner_text("+1.0", NotExact, true);
 
-                //var targetElement = GetLowestDivWithValue(betDivsWithNecessaryParam, koef.ToString("0.00", CultureInfo.GetCultureInfo("en-US")));
-                ////var targetElement = GetLowestDivWithValue(betDivsWithNecessaryParam, "1.77").get_parent()[0].get_parent();
-                //var text = targetElement.get_inner_text();
+                var upperDivWithNecessaryParam = periodDiv.get_all_child_by_inner_text("1.5", NotExact, true);
 
-                //if (targetElement != null)
-                //{
-                //    targetElement.meta_click();
-                //}\
-
-                var upperDivWithNecessaryKoef = periodDiv.get_all_child_by_inner_text(koef.ToString("0.00", CultureInfo.GetCultureInfo("en-US")), NotExact, true);
-
-                var divWithNecessaryKoef = GetLowestDivWithValue(upperDivWithNecessaryKoef, koef.ToString("0.00", CultureInfo.GetCultureInfo("en-US")));
-
-                div.get_by_attribute("data - role", "betslip-event-button-delete")?.meta_click();
+                var targetDiv = GetLowestDivWithValue(upperDivWithNecessaryParam, koef.ToString("0.00", CultureInfo.GetCultureInfo("en-US")));
 
                 Thread.Sleep(2000);
 
-                divWithNecessaryKoef.meta_click();
+                targetDiv.meta_click();
 
                 Thread.Sleep(2000);
 
-                input.get_by_attribute(ClassAttribute, PlaceBetInputClass).meta_click();
+                input.get_by_attribute(ClassAttribute, PlaceBetInputClass).click();
 
                 MyKeyboard.DeleteAllTextFromInput();
 
@@ -119,36 +107,6 @@ namespace XHE
             else
             {
                 Console.WriteLine($"Bet: Handicap\nParam: 2nd\nKoef{koef} \nNot Found");
-
-                return false;
-            }
-
-            span.wait_element_exist_by_attribute(ClassAttribute, FullTimeFirstTeamWinClass, NotExact);
-            browser.wait_for();
-            Thread.Sleep(2000);
-
-            var betSpan = span.get_by_attribute(ClassAttribute, FullTimeFirstTeamWinClass, NotExact);
-
-            if (CheckKoef(betSpan.get_inner_text(), koef))
-            {
-                Console.WriteLine("betClick: " + betSpan.meta_click());
-
-                input.get_by_attribute(ClassAttribute, PlaceBetInputClass).meta_click();
-
-                MyKeyboard.DeleteAllTextFromInput();
-
-                MyKeyboard.Input($"{betAmount}");
-
-                if (IsErrorsExist())
-                {
-                    return false;
-                }
-
-                button.click_by_attribute(ClassAttribute, PlaceBetButtonClass, NotExact);
-            }
-            else
-            {
-                Console.WriteLine("Koefs don't match");
 
                 return false;
             }
@@ -182,29 +140,40 @@ namespace XHE
             return result;
         }
 
-        private bool CheckKoef(string spanKoefString, double koef)
-        {
-            double spanKoefValue;
-
-            return Double.TryParse(spanKoefString, NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out spanKoefValue) && spanKoefValue == koef;
-        }
-
         private XHEInterfaces GetLowestDivWithValue(XHEInterfaces? betDivs, string innerText)
         {
             var result = betDivs.get_all_child_by_inner_text(innerText, NotExact, true);
 
             if (result.Count == 0)
             {
-                Console.WriteLine("Not found");
-
                 return null;
             }
-            else if (result.Count == 2)
+
+            foreach (var div in result)
             {
-                return result[0];
+                if (result.Count > 2)
+                {
+                    var res = GetLowestDivWithValue(div, innerText);
+
+                    if (res != null)
+                    {
+                        return res;
+                    }
+                }
+                else if (div.get_inner_text().Contains(innerText) && result.Count == 2)
+                {
+                    return div;
+                }
             }
 
-            return GetLowestDivWithValue(result[0], innerText);
+            return null;
+        }
+
+        private bool CheckKoef(string spanKoefString, double koef)
+        {
+            double spanKoefValue;
+
+            return Double.TryParse(spanKoefString, NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out spanKoefValue) && spanKoefValue == koef;
         }
     }
 }

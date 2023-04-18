@@ -9,7 +9,7 @@ namespace XHE
         protected const string IdAttribute = "id";
         protected const string NameAttribute = "name";
         protected const int NotExact = 0;
-        protected const int Exect = 1;
+        protected const int Exact = 1;
         #endregion
 
         protected MyKeyboardImplementation MyKeyboard;
@@ -23,8 +23,8 @@ namespace XHE
 
         //ToDo: replace the params to UserBetJobDto for our main app
         public void ProcessBet(string login, string password, double betAmount, string betUrl, double koef)
-        {      
-            SetBrowserSettings();
+        {
+            //SetBrowserSettings();
 
             if (Login(login, password))
             {
